@@ -28,26 +28,32 @@ async function main() {
     const assetId = new ObjectId()
     const fileName = req.headers["file-name"]
     const contentType = req.headers["content-type"]
-  
+
     const localFileName = path.join(__dirname, "../uploads", assetId.toString())
-  
+
     await streamToStorage(localFileName, req)
+
+    await assetCollections.insertOne({
+      _id: assetId,
+      originalFileName: fileName,
+      contentType
+    })
 
     res.sendStatus(200)
   })
-  
+
   app.get('/asset', (req, res) => {
     const fileName = req.query.fileName
     res.writeHead(200, {
-  
+
       "Content/Type": "image/png"
     })
-  
+
     const localFileName = path.join(__dirname, "../uploads", fileName)
     const fileReadStream = fs.createReadStream(localFileName)
     fileReadStream.pipe(res)
   })
-  
+
   app.listen(port, () => {
     console.log(`Listening on port ${port}`)
   })
