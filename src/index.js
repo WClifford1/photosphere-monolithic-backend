@@ -1,9 +1,26 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
+const { MongoClient, ObjectId } = require('mongodb')
 
 async function main() {
   // connect to db
+
+  const dbName = 'backend'
+
+  const DB_CONNECTION_STRING = process.env.DB_CONNECTION_STRING
+  if (DB_CONNECTION_STRING === undefined) {
+    throw new Error('Please set a env var DB_CONNECTION_STRING.')
+  }
+
+  const client = new MongoClient(DB_CONNECTION_STRING)
+  await client.connect()
+
+  const db = client.db(dbName)
+  const assetCollections = db.collection('assets')
+  const assets = await assetCollections.find().toArray()
+  console.log('Initial Assets')
+ console.log("assets called from index.js ", assets)
 
   // Start the REST API
   const app = express()
